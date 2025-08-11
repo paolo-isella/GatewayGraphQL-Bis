@@ -23,7 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
         .AddTypeExtension<Reviews.Types.ReviewResolvers>()
         .AddFiltering()
         .AddSorting()
-        .AddProjections();
+        .AddProjections()
+        .AddDataLoader<Reviews.DataLoaders.ReviewsByUserIdDataLoader>();
 }
 
 var app = builder.Build();

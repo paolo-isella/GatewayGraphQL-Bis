@@ -2,6 +2,13 @@ schema {
   query: Query
 }
 
+type LifeCycle {
+  id: Int!
+  startDate: DateTime!
+  endDate: DateTime!
+  review: Review!
+}
+
 "Information about pagination in a connection."
 type PageInfo {
   "Indicates whether more edges exist following the set defined by the clients arguments."
@@ -14,38 +21,52 @@ type PageInfo {
   endCursor: String
 }
 
-type Query {
-  users("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String where: UserFilterInput @cost(weight: "10") order: [UserSortInput!] @cost(weight: "10")): UsersConnection @listSize(assumedSize: 50, slicingArguments: [ "first", "last" ], slicingArgumentDefaultValue: 10, sizedFields: [ "edges", "nodes" ], requireOneSlicingArgument: false) @cost(weight: "10")
-  userById(id: Int!): User @cost(weight: "10")
-  usersById(ids: [Int!]!): [User!]! @cost(weight: "10")
-  userByUsername(username: String!): User @cost(weight: "10")
+type Product {
+  id: Int!
+  reviews: [Review!]!
 }
 
-type User {
+type Query {
+  reviews("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String where: ReviewFilterInput @cost(weight: "10") order: [ReviewSortInput!] @cost(weight: "10")): ReviewsConnection @listSize(assumedSize: 50, slicingArguments: [ "first", "last" ], slicingArgumentDefaultValue: 10, sizedFields: [ "edges", "nodes" ], requireOneSlicingArgument: false) @cost(weight: "10")
+  reviewById(id: Int!): Review @cost(weight: "10")
+  reviewsById(ids: [Int!]!): [Review!]! @cost(weight: "10")
+  reviewsByUserId(userIds: [Int!]! where: ReviewFilterInput @cost(weight: "10") order: [ReviewSortInput!] @cost(weight: "10")): [Review!]! @cost(weight: "10")
+  usersById(ids: [Int!]!): [User!]! @cost(weight: "10")
+}
+
+type Review {
   id: Int!
-  name: String!
-  dateTime: DateTime!
-  username: String!
+  body: String
+  stars: Int!
+  productId: Int!
+  product: Product!
+  lifeCycles: [LifeCycle!]!
+  userId: Int!
+  user: User!
 }
 
 "A connection to a list of items."
-type UsersConnection {
+type ReviewsConnection {
   "Information to aid in pagination."
   pageInfo: PageInfo!
   "A list of edges."
-  edges: [UsersEdge!]
+  edges: [ReviewsEdge!]
   "A flattened list of the nodes."
-  nodes: [User!]
+  nodes: [Review!]
   "Identifies the total count of items in the connection."
   totalCount: Int! @cost(weight: "10")
 }
 
 "An edge in a connection."
-type UsersEdge {
+type ReviewsEdge {
   "A cursor for use in pagination."
   cursor: String!
   "The item at the end of the edge."
-  node: User!
+  node: Review!
+}
+
+type User {
+  id: Int!
 }
 
 input DateTimeOperationFilterInput {
@@ -78,6 +99,61 @@ input IntOperationFilterInput {
   nlte: Int @cost(weight: "10")
 }
 
+input LifeCycleFilterInput {
+  and: [LifeCycleFilterInput!]
+  or: [LifeCycleFilterInput!]
+  id: IntOperationFilterInput
+  startDate: DateTimeOperationFilterInput
+  endDate: DateTimeOperationFilterInput
+  review: ReviewFilterInput
+}
+
+input ListFilterInputTypeOfLifeCycleFilterInput {
+  all: LifeCycleFilterInput @cost(weight: "10")
+  none: LifeCycleFilterInput @cost(weight: "10")
+  some: LifeCycleFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfReviewFilterInput {
+  all: ReviewFilterInput @cost(weight: "10")
+  none: ReviewFilterInput @cost(weight: "10")
+  some: ReviewFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ProductFilterInput {
+  and: [ProductFilterInput!]
+  or: [ProductFilterInput!]
+  id: IntOperationFilterInput
+  reviews: ListFilterInputTypeOfReviewFilterInput
+}
+
+input ProductSortInput {
+  id: SortEnumType @cost(weight: "10")
+}
+
+input ReviewFilterInput {
+  and: [ReviewFilterInput!]
+  or: [ReviewFilterInput!]
+  id: IntOperationFilterInput
+  body: StringOperationFilterInput
+  stars: IntOperationFilterInput
+  productId: IntOperationFilterInput
+  product: ProductFilterInput
+  lifeCycles: ListFilterInputTypeOfLifeCycleFilterInput
+  userId: IntOperationFilterInput
+}
+
+input ReviewSortInput {
+  id: SortEnumType @cost(weight: "10")
+  body: SortEnumType @cost(weight: "10")
+  stars: SortEnumType @cost(weight: "10")
+  productId: SortEnumType @cost(weight: "10")
+  product: ProductSortInput @cost(weight: "10")
+  userId: SortEnumType @cost(weight: "10")
+}
+
 input StringOperationFilterInput {
   and: [StringOperationFilterInput!]
   or: [StringOperationFilterInput!]
@@ -91,22 +167,6 @@ input StringOperationFilterInput {
   nstartsWith: String @cost(weight: "20")
   endsWith: String @cost(weight: "20")
   nendsWith: String @cost(weight: "20")
-}
-
-input UserFilterInput {
-  and: [UserFilterInput!]
-  or: [UserFilterInput!]
-  id: IntOperationFilterInput
-  name: StringOperationFilterInput
-  dateTime: DateTimeOperationFilterInput
-  username: StringOperationFilterInput
-}
-
-input UserSortInput {
-  id: SortEnumType @cost(weight: "10")
-  name: SortEnumType @cost(weight: "10")
-  dateTime: SortEnumType @cost(weight: "10")
-  username: SortEnumType @cost(weight: "10")
 }
 
 enum SortEnumType {

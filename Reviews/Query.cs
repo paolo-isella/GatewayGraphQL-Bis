@@ -22,10 +22,11 @@ public class Query
         ReviewDbContext dbContext
     ) => await dbContext.Reviews.Where(r => ids.Contains(r.Id)).ToListAsync();
 
-    public async Task<IEnumerable<Review>> GetReviewsByUserIdAsync(
-        int[] userIds,
-        ReviewDbContext dbContext
-    ) => await dbContext.Reviews.Where(r => userIds.Contains(r.UserId)).ToListAsync();
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<Review> GetReviewsByUserId(int[] userIds, ReviewDbContext dbContext) =>
+        dbContext.Reviews.Where(r => userIds.Contains(r.UserId));
 
     public Task<IEnumerable<User>> GetUsersByIdAsync(int[] ids) =>
         Task.FromResult(ids.Select(id => new User { Id = id }));

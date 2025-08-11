@@ -19,9 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
     builder
         .Services.AddGraphQLServer()
-        .AddQueryType<Query>()
-        .AddTypeExtension<Reviews.Types.UserResolvers>()
-        .AddType<ReviewType>()
+        .AddReviewsTypes()
         .AddFiltering()
         .AddSorting()
         .AddProjections()

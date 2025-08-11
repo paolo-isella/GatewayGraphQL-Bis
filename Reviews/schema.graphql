@@ -7,6 +7,7 @@ type LifeCycle {
   startDate: DateTime!
   endDate: DateTime!
   review: Review!
+  reviewId: Int!
 }
 
 "Information about pagination in a connection."
@@ -35,8 +36,8 @@ type Query {
 }
 
 type Review {
-  user: User! @cost(weight: "10")
-  lifeCycles(where: LifeCycleFilterInput @cost(weight: "10")): [LifeCycle!]!
+  user: User!
+  lifeCycles(where: LifeCycleFilterInput @cost(weight: "10") order: [LifeCycleSortInput!] @cost(weight: "10")): [LifeCycle!] @cost(weight: "10")
   id: Int!
   body: String
   stars: Int!
@@ -66,8 +67,8 @@ type ReviewsEdge {
 }
 
 type User {
+  reviews(where: ReviewFilterInput @cost(weight: "10") order: [ReviewSortInput!] @cost(weight: "10")): [Review!] @cost(weight: "10")
   id: Int!
-  reviews(where: ReviewFilterInput @cost(weight: "10") order: [ReviewSortInput!] @cost(weight: "10")): [Review!]! @cost(weight: "10")
 }
 
 input DateTimeOperationFilterInput {
@@ -107,6 +108,15 @@ input LifeCycleFilterInput {
   startDate: DateTimeOperationFilterInput
   endDate: DateTimeOperationFilterInput
   review: ReviewFilterInput
+  reviewId: IntOperationFilterInput
+}
+
+input LifeCycleSortInput {
+  id: SortEnumType @cost(weight: "10")
+  startDate: SortEnumType @cost(weight: "10")
+  endDate: SortEnumType @cost(weight: "10")
+  review: ReviewSortInput @cost(weight: "10")
+  reviewId: SortEnumType @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfLifeCycleFilterInput {

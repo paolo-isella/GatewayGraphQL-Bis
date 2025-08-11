@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Reviews.Types;
 
-[ExtendObjectType(typeof(User))]
-public class UserResolvers
+[ObjectType<User>]
+public static partial class UserResolvers
 {
     [UseFiltering]
     [UseSorting]
-    public Task<Review[]> GetReviews(
+    public static Task<Review[]?> GetReviews(
         [Parent] User user,
         QueryContext<Review> query,
         ReviewsByUserDataLoader  loader,

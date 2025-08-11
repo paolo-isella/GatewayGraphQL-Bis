@@ -7,4 +7,5 @@ public class LifeCycle
     public DateTime EndDate { get; set; }
 
     public Review Review { get; set; }
+    public int ReviewId { get; set; }
 }

@@ -12,7 +12,7 @@ public class Review
     public int ProductId { get; set; }
     public Product Product { get; set; }
 
-    public List<LifeCycle> LifeCycles { get; set; }
+    public List<LifeCycle> LifeCycles { get; set; } = [];
 
     public int UserId { get; set; }
 }

@@ -1,0 +1,62 @@
+﻿query QueryConBatchOK {
+  reviews(
+    where: {
+      lifeCycles: { some: { startDate: { gt: "2020-01-01T00:00:00.000Z" } } }
+    }
+  ) {
+    nodes {
+      id
+      body
+      stars
+      productId
+      product {
+        id
+      }
+      userId
+      user {
+        id
+        name
+        dateTime
+        username
+      }
+      lifeCycles(where: { startDate: { gt: "2020-01-01T00:00:00.000Z" } }) {
+        startDate
+        endDate
+        reviewId
+      }
+    }
+  }
+}
+
+
+query QueryConBatchFiltratoInMemoryENonNelDb {
+  users {
+    nodes {
+      id
+      name
+      dateTime
+      username
+      reviews(
+        where: {
+          lifeCycles: {
+            some: { startDate: { gt: "2020-01-01T00:00:00.000Z" } }
+          }
+        }
+      ) {
+        id
+        stars
+        userId
+        productId
+        product {
+          id
+        }
+        lifeCycles(where: { startDate: { gt: "2020-01-01T00:00:00.000Z" } }) {
+          id
+          reviewId
+          startDate
+          endDate
+        }
+      }
+    }
+  }
+}

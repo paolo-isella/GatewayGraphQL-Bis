@@ -1,28 +1,50 @@
+using GreenDonut.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace Reviews.Types;
 
-public sealed class ReviewType : ObjectType<Review>
+[ObjectType<Review>]
+public static partial class ReviewType
 {
-    // public User GetUser([Parent] Review review) => new User { Id = review.UserId };
+    public static User GetUser([Parent] Review review) => new User { Id = review.UserId };
 
-    protected override void Configure(IObjectTypeDescriptor<Review> d)
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public static Task<LifeCycle[]?> GetLifeCycles(
+        [Parent] Review review,
+        QueryContext<LifeCycle> query,
+        LifeCyclesByReviewIdDataLoader loader,
+        CancellationToken ct)
+        => loader.With(query).LoadAsync(review.Id, ct);
+}
+
+public static class ReviewDataLoader
+{
+    [DataLoader]
+    public static async Task<Dictionary<int, LifeCycle[]>> GetLifeCyclesByReviewIdAsync(
+        IReadOnlyList<int> reviewIds,
+        QueryContext<LifeCycle> query,
+        ReviewDbContext db,
+        CancellationToken ct)
     {
-        d.Field("user")
-            .Type<NonNullType<ObjectType<User>>>()
-            .Resolve(ctx =>
+        var items = await db.LifeCycles
+            .Where(lc => reviewIds.Contains(lc.ReviewId))
+            .With(query)
+            .ToListAsync(ct);
+
+        var result = items
+            .GroupBy(lc => lc.ReviewId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+
+        foreach (var id in reviewIds)
+        {
+            if (!result.ContainsKey(id))
             {
-                var review = ctx.Parent<Review>();
-                return new User { Id = review.UserId }; // stub entity
-            });
-        
-        d.Field(x => x.LifeCycles).UseFiltering();
+                result[id] = [];
+            }
+        }
+
+        return result;
     }
-    
-    // [UseFiltering]
-    // [UseSorting]
-    // public Task<IReadOnlyList<LifeCycle>> GetLifeCycles(
-    //     [Parent] Review review,
-    //     QueryContext<LifeCycle> query,
-    //     LifeCyclesByReviewIdDataLoader dl,
-    //     CancellationToken ct)
-    //     => dl.With(query).LoadAsync(review.Id, ct);
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Reviews;
+using HotChocolate.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 {
@@ -14,6 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddDbContextFactory<ReviewDbContext>(opt =>
         opt.UseSqlite("Data Source=app.db").EnableSensitiveDataLogging()
     );
+
+    builder.Services
+        .AddGraphQLServer()
+        .AddQueryType<Query>()
+        .AddTypeExtension<Reviews.Types.UserResolvers>()
+        .AddTypeExtension<Reviews.Types.ReviewResolvers>()
+        .AddFiltering()
+        .AddSorting()
+        .AddProjections();
 }
 
 var app = builder.Build();

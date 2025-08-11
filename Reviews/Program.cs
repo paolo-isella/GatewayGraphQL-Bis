@@ -1,6 +1,7 @@
 using HotChocolate.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Reviews;
+using Reviews.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 {
@@ -19,11 +20,12 @@ var builder = WebApplication.CreateBuilder(args);
     builder
         .Services.AddGraphQLServer()
         .AddQueryType<Query>()
-        // .AddTypeExtension<Reviews.Types.UserResolvers>()
-        .AddTypeExtension<Reviews.Types.ReviewResolvers>()
+        .AddTypeExtension<Reviews.Types.UserResolvers>()
+        .AddType<ReviewType>()
         .AddFiltering()
         .AddSorting()
-        .AddProjections();
+        .AddProjections()
+        .AddQueryContext();
 }
 
 var app = builder.Build();

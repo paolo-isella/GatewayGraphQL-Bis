@@ -35,14 +35,14 @@ type Query {
 }
 
 type Review {
+  user: User! @cost(weight: "10")
+  lifeCycles(where: LifeCycleFilterInput @cost(weight: "10")): [LifeCycle!]!
   id: Int!
   body: String
   stars: Int!
   productId: Int!
   product: Product!
-  lifeCycles: [LifeCycle!]!
   userId: Int!
-  user: User!
 }
 
 "A connection to a list of items."
@@ -67,6 +67,7 @@ type ReviewsEdge {
 
 type User {
   id: Int!
+  reviews(where: ReviewFilterInput @cost(weight: "10") order: [ReviewSortInput!] @cost(weight: "10")): [Review!]! @cost(weight: "10")
 }
 
 input DateTimeOperationFilterInput {

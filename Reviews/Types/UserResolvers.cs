@@ -3,6 +3,7 @@ using HotChocolate.Data;
 using HotChocolate.Types;
 using Reviews;
 using Reviews.Types;
+using System.Threading;
 
 namespace Reviews.Types;
 
@@ -12,6 +13,12 @@ public class UserResolvers
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<Review> GetReviews([Parent] User user, ReviewDbContext dbContext) =>
-        dbContext.Reviews.Where(r => r.UserId == user.Id);
+    public async Task<IQueryable<Review>> GetReviews(
+        [Parent] User user,
+        DataLoaders.ReviewsByUserIdDataLoader dataLoader,
+        CancellationToken cancellationToken)
+    {
+        var reviews = await dataLoader.LoadAsync(user.Id, cancellationToken);
+        return reviews.AsQueryable();
+    }
 }

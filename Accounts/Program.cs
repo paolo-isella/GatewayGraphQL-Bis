@@ -1,5 +1,7 @@
 using Accounts;
 using Microsoft.EntityFrameworkCore;
+using HotChocolate.AspNetCore;
+using HotChocolate.Execution.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 {
@@ -13,6 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddDbContextFactory<AccountDbContext>(opt => opt
         .UseSqlite("Data Source=app.db")
         .EnableSensitiveDataLogging());
+
+    builder.Services
+        .AddGraphQLServer()
+        .AddQueryType<Query>()
+        .AddFiltering()
+        .AddSorting()
+        .AddProjections();
 }
 
 var app = builder.Build();
